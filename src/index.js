@@ -43,8 +43,11 @@ function play(guild, song) {
   const dispatcher = serverQueue.connection
     .play(ytdl(song.url))
     .on('finish', () => {
-      serverQueue.songs.shift();
-      play(guild, serverQueue.songs[0]);
+      serverQueue.songs.shift()
+      const newQueue = { ...serverQueue };
+      queue.set(guild.id, newQueue);
+      console.log(queue.get(guild.id).songs);
+      play(guild, queue.get(guild.id).songs[0]);
     })
     // eslint-disable-next-line no-console
     .on('error', (error) => console.error(error));
@@ -73,7 +76,7 @@ client.on('message', async (message) => {
   const songString = args.filter((str) => str !== '.play').join(' ');
   if (args[0] === `${settings.prefix}play`) {
     console.log(songString);
-    const searchResults = await ytsr(songString);
+    const searchResults = await ytsr(songString, { limit: 5 });
     const { url } = searchResults.items[0];
     console.log({ url });
     const songInfo = await ytdl.getInfo(url);
@@ -107,5 +110,14 @@ client.on('message', async (message) => {
     } else {
       console.log('boop');
     }
+  }
+  if (args[0] === `${settings.prefix}skip`) {
+    if (!message.member.voice.channel)
+    return message.channel.send(
+      "You have to be in a voice channel to stop the music!"
+    );
+  if (!queue.get(message.guild.id)?.songs?.length)
+    return message.channel.send("There is no song that I could skip!");
+  queue.get(message.guild.id).connection.dispatcher.end();  
   }
 });
