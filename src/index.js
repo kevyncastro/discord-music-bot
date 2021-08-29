@@ -11,11 +11,6 @@ const youtubesearchapi = require('youtube-search-api');
 const ytsr = require('ytsr');
 const search = require('youtube-search');
 
-const opts = {
-  maxResults: 10,
-  key: '414032062352-j45urva7aqfr8daos5cgshp6oam93jc6.apps.googleusercontent.com'
-};
-
 const app = require('./app');
 
 const client = new Discord.Client({
@@ -28,7 +23,7 @@ const client = new Discord.Client({
 
 const settings = {
   prefix: '.',
-  token: 'ODgxMTM3MDcxMjc4OTQwMTkx.YSoc2A.Bkk0NY8W6fcb4-k41EI9YWih9R4'
+  token: process.env.token
 };
 
 const port = process.env.PORT || 5000;
