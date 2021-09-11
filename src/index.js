@@ -42,7 +42,9 @@ function play(guild, song) {
       const newQueue = { ...serverQueue };
       queue.set(guild.id, newQueue);
       console.log(queue.get(guild.id).songs);
-      play(guild, queue.get(guild.id).songs[0]);
+      if(queue.get(guild.id).songs.length) {
+        play(guild, queue.get(guild.id).songs[0]);
+      }
     })
     // eslint-disable-next-line no-console
     .on('error', (error) => console.error(error));
@@ -50,15 +52,11 @@ function play(guild, song) {
   serverQueue.textChannel.send(`Start playing: **${song.title}**`);
 }
 
-app.listen(port, () => {
-  /* eslint-disable no-console */
-  console.log(`Listening: http://localhost:${port}`);
-  client.on('ready', () => {
-    console.log('I am ready to Play with DMP 🎶');
-  });
-  client.login(settings.token).catch((err) => {
-    console.log({ err });
-  });
+client.on('ready', () => {
+  console.log('I am ready to Play with DMP 🎶');
+});
+client.login(settings.token).catch((err) => {
+  console.log({ err });
 });
 
 client.on('message', async (message) => {
@@ -114,5 +112,8 @@ client.on('message', async (message) => {
   if (!queue.get(message.guild.id)?.songs?.length)
     return message.channel.send("There is no song that I could skip!");
   queue.get(message.guild.id).connection.dispatcher.end();  
+  }
+  if (args[0] === `${settings.prefix}q`) {
+    message.channel.send(`${ [ ...queue.get(message.guild.id).songs.map((song) => song.title) ] }`);
   }
 });
