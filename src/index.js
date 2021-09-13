@@ -55,6 +55,7 @@ function play(guild, song) {
 client.on('ready', () => {
   console.log('I am ready to Play with DMP 🎶');
 });
+
 client.login(settings.token).catch((err) => {
   console.log({ err });
 });
