@@ -7,4 +7,6 @@ const spotifyApi = new SpotifyWebApi({
   clientSecret: process.env.SPOTIFY_CLIENT_SECRET ? process.env.SPOTIFY_CLIENT_SECRET : '',
 });
 
+spotifyApi.setAccessToken(process.env.SPOTIFY_OAUTH_TOKEN ? process.env.SPOTIFY_OAUTH_TOKEN : '');
+
 module.exports = spotifyApi;
