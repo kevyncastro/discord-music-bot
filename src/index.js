@@ -137,11 +137,8 @@ client.on('message', async (message) => {
   }
 
   if (args[0] === `${settings.prefix}lyrics`) {
-    message.channel.send("Lyrics command is now working!")
-
     if (!queue.get(message.guild.id)?.songs.length) {
-    
-    return message.channel.send("No songs in queue tanga")
+      return message.channel.send("No songs in queue tanga")
     }
     return message.channel.send(await musixMatch(queue.get(message.guild.id).songs[0].title));
   }
