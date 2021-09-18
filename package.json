@@ -1,7 +1,7 @@
 {
-  "name": "express-api-starter",
+  "name": "98-server-music-bot",
   "version": "1.2.0",
-  "description": " A basic starter for an express.js API",
+  "description": "",
   "main": "index.js",
   "scripts": {
     "start": "node src/index.js",
