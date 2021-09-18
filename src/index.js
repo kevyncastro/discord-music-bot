@@ -64,10 +64,16 @@ client.on('message', async (message) => {
   if (message.channel.type === 'dm') {
     return;
   }
+  // if (!message.member.voice.channel)
+  //   return message.channel.send(
+  //     "You have to be in a voice channel to stop the music!"
+  //   );
+
   const channel = client.channels.cache.get(message.channel.id);
   const voiceChannel = message.member.voice.channel;
   const args = message.content.split(' ');
   const songString = args.filter((str) => str !== '.play').join(' ');
+  
   if (args[0] === `${settings.prefix}play`) {
     console.log(songString);
     const searchResults = await ytsr(songString, { limit: 5 });
@@ -90,30 +96,38 @@ client.on('message', async (message) => {
       };
     queue.set(message.guild.id, queueContruct);
     if (queue.get(message.guild.id) && !queue.get(message.guild.id).songs.length) {
+
       queueContruct.songs.push(song);
       queue.set(message.guild.id, queueContruct);
       const connection = await voiceChannel.join();
       queueContruct.connection = connection;
       // Calling the play function to start a song
       play(message.guild, queueContruct.songs[0]);
+
     } else if (queue.get(message.guild.id) && queue.get(message.guild.id).songs.length) {
+
       const newQueue = { ...queue.get(message.guild.id) };
       newQueue.songs.push(song);
       queue.set(message.guild.id, newQueue);
+
       message.channel.send(`${song.title} has been added to the queue!`);
+
     } else {
       console.log('boop');
     }
+
   }
+
   if (args[0] === `${settings.prefix}skip`) {
-    if (!message.member.voice.channel)
-    return message.channel.send(
-      "You have to be in a voice channel to stop the music!"
-    );
-  if (!queue.get(message.guild.id)?.songs?.length)
-    return message.channel.send("There is no song that I could skip!");
-  queue.get(message.guild.id).connection.dispatcher.end();  
+
+    if (!queue.get(message.guild.id)?.songs?.length) {
+      return message.channel.send("There is no song that I could skip!");
+    }
+
+    queue.get(message.guild.id).connection.dispatcher.end();  
+
   }
+  
   if (args[0] === `${settings.prefix}q`) {
     message.channel.send(`${ [ ...queue.get(message.guild.id).songs.map((song) => song.title) ] }`);
   }
