@@ -14,12 +14,13 @@ try {
 
 }
 async function musixMatch(trackId) {
-   await music.trackSearch({q:trackId, page:1, page_size:3})
-	.then(async function(data){
-        console.log(data.message.body.track_list[0].track.track_id);
-		await lyrics(data.message.body.track_list[0].track.track_id);
-	}).catch(function(err){
-		console.log(err);
-})
+try {
+    console.log(trackId);
+    return lyrics((await music.trackSearch({q:trackId, page:1, page_size:3})).message.body.track_list[0].track.track_id)
+    
+} catch (error) {
+    console.log(error)
 }
+}
+
 module.exports = musixMatch;

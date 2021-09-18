@@ -102,7 +102,6 @@ client.on('message', async (message) => {
       queueContruct.songs.push(song);
       const connection = await voiceChannel.join();
       queueContruct.connection = connection;
-      console.log(queue.get(message.guild.id));
       // Calling the play function to start a song
       queue.set(message.guild.id, queueContruct);
       play(message.guild, queueContruct.songs[0]);
