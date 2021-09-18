@@ -78,7 +78,7 @@ client.on('message', async (message) => {
     console.log(songString);
     var songStringForYt = '';
     if(songString.startsWith('https://open.spotify.com/')){
-      songStringForYt = await spotifySearch(songString.trim())
+      songStringForYt = await spotifySearch(songString.trim());
     }else{
       songStringForYt = songString;
     }
