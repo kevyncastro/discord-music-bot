@@ -1,5 +1,6 @@
 /* eslint-disable linebreak-style */
 /* eslint-disable no-unused-vars */
+require('dotenv').config();
 const Discord = require('discord.js');
 const { Intents } = require('discord.js');
 const {
@@ -10,8 +11,6 @@ const { join } = require('@discordjs/voice');
 const youtubesearchapi = require('youtube-search-api');
 const ytsr = require('ytsr');
 const search = require('youtube-search');
-
-const app = require('./app');
 
 const client = new Discord.Client({
   // eslint-disable-next-line no-undef
