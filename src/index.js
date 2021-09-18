@@ -11,8 +11,6 @@ const youtubesearchapi = require('youtube-search-api');
 const ytsr = require('ytsr');
 const search = require('youtube-search');
 
-const app = require('./app');
-
 const client = new Discord.Client({
   // eslint-disable-next-line no-undef
   intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_VOICE_STATES]
