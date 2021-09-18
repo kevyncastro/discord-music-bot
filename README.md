@@ -2,5 +2,5 @@
 
 1. Install NodeJS Version 14 ( LTS )
 
-2. Set-Up .env file on the root foler
+2. Set-Up .env file on the root folder
     ```TOKEN={{TOKEN}}```
