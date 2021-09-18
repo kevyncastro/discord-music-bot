@@ -76,7 +76,7 @@ client.on('message', async (message) => {
   const args = message.content.split(' ');
   const songString = args.filter((str) => str !== '.play').join(' ');
 
-  queue.set(message.guild.id, {
+  queue.set(message.guild.id, queue.get(message.guild.id) ?? {
     textChannel: message.channel,
     voiceChannel,
     connection: null,
@@ -102,7 +102,7 @@ client.on('message', async (message) => {
       queueContruct.songs.push(song);
       const connection = await voiceChannel.join();
       queueContruct.connection = connection;
-      console.log(message.guild.id);
+      console.log(queue.get(message.guild.id));
       // Calling the play function to start a song
       queue.set(message.guild.id, queueContruct);
       play(message.guild, queueContruct.songs[0]);
