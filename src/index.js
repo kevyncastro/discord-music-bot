@@ -11,6 +11,8 @@ const { join } = require('@discordjs/voice');
 const youtubesearchapi = require('youtube-search-api');
 const ytsr = require('ytsr');
 const search = require('youtube-search');
+const musixmatch = require('./integrations/musixmatch');
+const musixMatch = require('./integrations/musixmatch');
 
 const client = new Discord.Client({
   // eslint-disable-next-line no-undef
@@ -22,7 +24,8 @@ const client = new Discord.Client({
 
 const settings = {
   prefix: '.',
-  token: process.env.token
+  token: process.env.token,
+  //token: process.env.tokenmusix
 };
 
 const port = process.env.PORT || 5000;
@@ -72,8 +75,17 @@ client.on('message', async (message) => {
   const voiceChannel = message.member.voice.channel;
   const args = message.content.split(' ');
   const songString = args.filter((str) => str !== '.play').join(' ');
-  
-  if (args[0] === `${settings.prefix}play`) {
+
+  queue.set(message.guild.id, {
+    textChannel: message.channel,
+    voiceChannel,
+    connection: null,
+    songs: [],
+    volume: 5,
+    playing: true,
+  });
+
+  if (args[0] === `${settings.prefix}play` || args[0] === `${settings.prefix}p` ) {
     console.log(songString);
     const searchResults = await ytsr(songString, { limit: 5 });
     const { url } = searchResults.items[0];
@@ -83,24 +95,16 @@ client.on('message', async (message) => {
       title: songInfo.videoDetails.title,
       url: songInfo.videoDetails.video_url,
     };
-    const queueContruct = (queue.get(message.guild.id)?.songs?.length )
-      ? { ...queue.get(message.guild.id) }
-      : {
-        textChannel: message.channel,
-        voiceChannel,
-        connection: null,
-        songs: [],
-        volume: 5,
-        playing: true,
-      };
-    queue.set(message.guild.id, queueContruct);
+    const queueContruct = { ...queue.get(message.guild.id) }
+     
     if (queue.get(message.guild.id) && !queue.get(message.guild.id).songs.length) {
-
+      
       queueContruct.songs.push(song);
-      queue.set(message.guild.id, queueContruct);
       const connection = await voiceChannel.join();
       queueContruct.connection = connection;
+      console.log(message.guild.id);
       // Calling the play function to start a song
+      queue.set(message.guild.id, queueContruct);
       play(message.guild, queueContruct.songs[0]);
 
     } else if (queue.get(message.guild.id) && queue.get(message.guild.id).songs.length) {
@@ -128,6 +132,19 @@ client.on('message', async (message) => {
   }
   
   if (args[0] === `${settings.prefix}q`) {
+    console.log(message.guild.id);
+    console.log({...queue.get(message.guild.id)});
     message.channel.send(`${ [ ...queue.get(message.guild.id).songs.map((song) => song.title) ] }`);
   }
+
+  if (args[0] === `${settings.prefix}lyrics`) {
+    message.channel.send("Lyrics command is now working!")
+
+    if (!queue.get(message.guild.id)?.songs.length) {
+    
+    return message.channel.send("No songs in queue tanga")
+    }
+    return message.channel.send(await musixMatch(queue.get(message.guild.id).songs[0].title));
+  }
+
 });
