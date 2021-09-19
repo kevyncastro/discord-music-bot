@@ -134,15 +134,11 @@ client.on('message', async (message) => {
   }
 
   if (args[0] === `${settings.prefix}lyrics`) {
+    const user = '323413069633945603'
     if (!queue.get(message.guild.id)?.songs.length) {
-      return message.channel.send("No songs in queue tanga")
+      return message.channel.send(`No songs in queue`)
     }
     return message.channel.send(await musixMatch(queue.get(message.guild.id).songs[0].title));
-  }
-
-  if ( args[0] === `jabol`) {
-    const user = '323413069633945603'
-    message.channel.send(`tang ina mo <@${user}>`)
   }
 
 });
