@@ -29,6 +29,8 @@
     "helmet": "^4.6.0",
     "libsodium-wrappers": "^0.7.9",
     "morgan": "^1.10.0",
+    "musicmatch": "^0.3.2",
+    "musixmatch": "^0.1.6",
     "node": "16.6.1",
     "opusscript": "0.0.8",
     "youtube-search": "^1.1.6",
