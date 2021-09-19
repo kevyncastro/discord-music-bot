@@ -65,16 +65,18 @@ client.on('message', async (message) => {
   if (message.channel.type === 'dm') {
     return;
   }
-  // if (!message.member.voice.channel)
-  //   return message.channel.send(
-  //     "You have to be in a voice channel to stop the music!"
-  //   );
-
+  
   const channel = client.channels.cache.get(message.channel.id);
   const voiceChannel = message.member.voice.channel;
   const args = message.content.split(' ');
+  const prefix = args[0].split('')
+  if (!message.member.voice.channel && message.author.id !== '881137071278940191' && prefix[0] === settings.prefix)
+  { 
+    return message.channel.send(
+      "You have to be in a voice channel to stop the music!"
+    );
+  }
   const songString = args.filter((str) => str !== '.play').join(' ');
-
   queue.set(message.guild.id, queue.get(message.guild.id) ?? {
     textChannel: message.channel,
     voiceChannel,
@@ -83,7 +85,6 @@ client.on('message', async (message) => {
     volume: 5,
     playing: true,
   });
-
   if (args[0] === `${settings.prefix}play` || args[0] === `${settings.prefix}p` ) {
     console.log(songString);
     const searchResults = await ytsr(songString, { limit: 5 });
@@ -95,44 +96,34 @@ client.on('message', async (message) => {
       url: songInfo.videoDetails.video_url,
     };
     const queueContruct = { ...queue.get(message.guild.id) }
-     
     if (queue.get(message.guild.id) && !queue.get(message.guild.id).songs.length) {
-      
       queueContruct.songs.push(song);
       const connection = await voiceChannel.join();
       queueContruct.connection = connection;
       // Calling the play function to start a song
       queue.set(message.guild.id, queueContruct);
       play(message.guild, queueContruct.songs[0]);
-
     } else if (queue.get(message.guild.id) && queue.get(message.guild.id).songs.length) {
-
       const newQueue = { ...queue.get(message.guild.id) };
       newQueue.songs.push(song);
       queue.set(message.guild.id, newQueue);
-
       message.channel.send(`${song.title} has been added to the queue!`);
-
     } else {
       console.log('boop');
     }
-
   }
-
   if (args[0] === `${settings.prefix}skip`) {
-
     if (!queue.get(message.guild.id)?.songs?.length) {
       return message.channel.send("There is no song that I could skip!");
     }
-
     queue.get(message.guild.id).connection.dispatcher.end();  
-
   }
-  
   if (args[0] === `${settings.prefix}q`) {
+    if (!queue.get(message.guild.id)?.songs.length) {
+      return message.channel.send(`No songs in queue`)
+    }
     message.channel.send(`${ [ ...queue.get(message.guild.id).songs.map((song) => song.title) ] }`);
   }
-
   if (args[0] === `${settings.prefix}lyrics`) {
     const user = '323413069633945603'
     if (!queue.get(message.guild.id)?.songs.length) {
@@ -140,5 +131,4 @@ client.on('message', async (message) => {
     }
     return message.channel.send(await musixMatch(queue.get(message.guild.id).songs[0].title));
   }
-
 });
