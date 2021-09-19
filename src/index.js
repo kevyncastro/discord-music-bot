@@ -70,8 +70,7 @@ client.on('message', async (message) => {
   const voiceChannel = message.member.voice.channel;
   const args = message.content.split(' ');
   const prefix = args[0].split('')
-  if (!message.member.voice.channel && message.author.id !== '881137071278940191' && prefix[0] === settings.prefix)
-  { 
+  if (!message.member.voice.channel && message.author.id !== '881137071278940191' && prefix[0] === settings.prefix) { 
     return message.channel.send(
       "You have to be in a voice channel to stop the music!"
     );
