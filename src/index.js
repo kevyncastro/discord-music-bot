@@ -43,7 +43,6 @@ function play(guild, song) {
       serverQueue.songs.shift()
       const newQueue = { ...serverQueue };
       queue.set(guild.id, newQueue);
-      console.log(queue.get(guild.id).songs);
       if(queue.get(guild.id).songs.length) {
         play(guild, queue.get(guild.id).songs[0]);
       }
@@ -131,8 +130,6 @@ client.on('message', async (message) => {
   }
   
   if (args[0] === `${settings.prefix}q`) {
-    console.log(message.guild.id);
-    console.log({...queue.get(message.guild.id)});
     message.channel.send(`${ [ ...queue.get(message.guild.id).songs.map((song) => song.title) ] }`);
   }
 
@@ -141,6 +138,11 @@ client.on('message', async (message) => {
       return message.channel.send("No songs in queue tanga")
     }
     return message.channel.send(await musixMatch(queue.get(message.guild.id).songs[0].title));
+  }
+
+  if ( args[0] === `jabol`) {
+    const user = '323413069633945603'
+    message.channel.send(`tang ina mo <@${user}>`)
   }
 
 });
