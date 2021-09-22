@@ -1,4 +1,5 @@
 # 98 SERVER MUSIC BOT
+## This is an open source discord music bot
 
 1. Install NodeJS Version 14 ( LTS )
 

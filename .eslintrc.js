@@ -2,7 +2,7 @@ module.exports = {
     env: {
         jest: true,
     },
-    extends: 'airbnb-base',
+    extends: 'es-lint',
     rules: {
         'comma-dangle': 0,
         'no-underscore-dangle': 0,

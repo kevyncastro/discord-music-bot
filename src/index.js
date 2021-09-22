@@ -12,6 +12,7 @@ const youtubesearchapi = require('youtube-search-api');
 const ytsr = require('ytsr');
 const search = require('youtube-search');
 const spotifySearch = require('./functions/play-spotfiy');
+const musixMatch = require('./integrations/musixmatch');
 
 const client = new Discord.Client({
   // eslint-disable-next-line no-undef
@@ -23,7 +24,8 @@ const client = new Discord.Client({
 
 const settings = {
   prefix: '.',
-  token: process.env.token
+  token: process.env.token,
+  //token: process.env.tokenmusix
 };
 
 const port = process.env.PORT || 5000;
@@ -41,7 +43,6 @@ function play(guild, song) {
       serverQueue.songs.shift()
       const newQueue = { ...serverQueue };
       queue.set(guild.id, newQueue);
-      console.log(queue.get(guild.id).songs);
       if(queue.get(guild.id).songs.length) {
         play(guild, queue.get(guild.id).songs[0]);
       }
@@ -64,17 +65,26 @@ client.on('message', async (message) => {
   if (message.channel.type === 'dm') {
     return;
   }
-  // if (!message.member.voice.channel)
-  //   return message.channel.send(
-  //     "You have to be in a voice channel to stop the music!"
-  //   );
-
+  
   const channel = client.channels.cache.get(message.channel.id);
   const voiceChannel = message.member.voice.channel;
   const args = message.content.split(' ');
+  const prefix = args[0].split('')
+  if (!message.member.voice.channel && message.author.id !== '881137071278940191' && prefix[0] === settings.prefix) { 
+    return message.channel.send(
+      "You have to be in a voice channel to stop the music!"
+    );
+  }
   const songString = args.filter((str) => str !== '.play').join(' ');
-  
-  if (args[0] === `${settings.prefix}play`) {
+  queue.set(message.guild.id, queue.get(message.guild.id) ?? {
+    textChannel: message.channel,
+    voiceChannel,
+    connection: null,
+    songs: [],
+    volume: 5,
+    playing: true,
+  });
+  if (args[0] === `${settings.prefix}play` || args[0] === `${settings.prefix}p` ) {
     console.log(songString);
     var songStringForYt = '';
     if(songString.startsWith('https://open.spotify.com/')){
@@ -91,51 +101,40 @@ client.on('message', async (message) => {
       title: songInfo.videoDetails.title,
       url: songInfo.videoDetails.video_url,
     };
-    const queueContruct = (queue.get(message.guild.id)?.songs?.length )
-      ? { ...queue.get(message.guild.id) }
-      : {
-        textChannel: message.channel,
-        voiceChannel,
-        connection: null,
-        songs: [],
-        volume: 5,
-        playing: true,
-      };
-    queue.set(message.guild.id, queueContruct);
+    const queueContruct = { ...queue.get(message.guild.id) }
     if (queue.get(message.guild.id) && !queue.get(message.guild.id).songs.length) {
-
       queueContruct.songs.push(song);
-      queue.set(message.guild.id, queueContruct);
       const connection = await voiceChannel.join();
       queueContruct.connection = connection;
       // Calling the play function to start a song
+      queue.set(message.guild.id, queueContruct);
       play(message.guild, queueContruct.songs[0]);
-
     } else if (queue.get(message.guild.id) && queue.get(message.guild.id).songs.length) {
-
       const newQueue = { ...queue.get(message.guild.id) };
       newQueue.songs.push(song);
       queue.set(message.guild.id, newQueue);
-
       message.channel.send(`${song.title} has been added to the queue!`);
-
     } else {
       console.log('boop');
     }
-
   }
-
   if (args[0] === `${settings.prefix}skip`) {
-
     if (!queue.get(message.guild.id)?.songs?.length) {
       return message.channel.send("There is no song that I could skip!");
     }
-
     queue.get(message.guild.id).connection.dispatcher.end();  
-
   }
-  
   if (args[0] === `${settings.prefix}q`) {
+    if (!queue.get(message.guild.id)?.songs.length) {
+      return message.channel.send(`No songs in queue`)
+    }
     message.channel.send(`${ [ ...queue.get(message.guild.id).songs.map((song) => song.title) ] }`);
+  }
+  if (args[0] === `${settings.prefix}lyrics`) {
+    const user = '323413069633945603'
+    if (!queue.get(message.guild.id)?.songs.length) {
+      return message.channel.send(`No songs in queue`)
+    }
+    return message.channel.send(await musixMatch(queue.get(message.guild.id).songs[0].title));
   }
 });
