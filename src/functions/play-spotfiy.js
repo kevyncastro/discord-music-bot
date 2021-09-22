@@ -30,7 +30,6 @@ const spotifySearch = async (searchString) => {
       catch (e) {
         console.log("error occured fetching playlist", e)
       }
-      return "";
     }
     else if (searchString.startsWith(`${spotifyLink}playlist/`)) {
       const playlistId = searchString.replace(`${spotifyLink}playlist/`, "").split('?')[0];
