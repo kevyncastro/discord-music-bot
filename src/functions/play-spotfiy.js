@@ -6,7 +6,7 @@ const spotifySearch = async (searchString) => {
   const spotifyLink = 'https://open.spotify.com/';
   if (searchString.startsWith(spotifyLink)) {
     if (searchString.startsWith(`${spotifyLink}track/`)) {
-      const trackId = searchString.replace(`${spotifyLink}track/`, "").split('?')[0];
+      const trackId = getId(searchString)
       try {
         const data = await spotifyApi.getTrack(trackId);
         let searchStringForYt = `${data.body.name} ${data.body.artists[0].name}`;
@@ -18,7 +18,7 @@ const spotifySearch = async (searchString) => {
       }
     }
     else if (searchString.startsWith(`${spotifyLink}album/`)) {
-      const albumId = searchString.replace(`${spotifyLink}album/`, "").split('?')[0];
+      const albumId = getId(searchString)
       console.log("temp album", albumId);
       try {
         const data = await spotifyApi.getAlbum(albumId)
@@ -32,7 +32,7 @@ const spotifySearch = async (searchString) => {
       }
     }
     else if (searchString.startsWith(`${spotifyLink}playlist/`)) {
-      const playlistId = searchString.replace(`${spotifyLink}playlist/`, "").split('?')[0];
+      const playlistId = getId(searchString)
       try {
         const data = await spotifyApi.getPlaylist(playlistId);
         let items = data.body.tracks.items;
@@ -45,5 +45,9 @@ const spotifySearch = async (searchString) => {
     }
   }
 }
+
+const getId = (spotifyUrl) => {
+  return spotifyUrl.split('/')[4].split('?')[0];
+} 
 
 module.exports = spotifySearch;
