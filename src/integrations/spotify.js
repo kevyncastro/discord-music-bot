@@ -18,6 +18,5 @@ spotifyApi.clientCredentialsGrant().then((data) => {
 .catch(e => {
   console.log('Something went wrong when retrieving an access token', e)
 })
-// spotifyApi.setAccessToken(process.env.SPOTIFY_OAUTH_TOKEN ? process.env.SPOTIFY_OAUTH_TOKEN : '');
 
 module.exports = spotifyApi;
