@@ -11,7 +11,7 @@ const { join } = require('@discordjs/voice');
 const youtubesearchapi = require('youtube-search-api');
 const ytsr = require('ytsr');
 const search = require('youtube-search');
-const musixmatch = require('./integrations/musixmatch');
+const spotifySearch = require('./functions/play-spotfiy');
 const musixMatch = require('./integrations/musixmatch');
 
 const client = new Discord.Client({
@@ -86,7 +86,14 @@ client.on('message', async (message) => {
   });
   if (args[0] === `${settings.prefix}play` || args[0] === `${settings.prefix}p` ) {
     console.log(songString);
-    const searchResults = await ytsr(songString, { limit: 5 });
+    var songStringForYt = '';
+    if(songString.startsWith('https://open.spotify.com/')){
+      songStringForYt = await spotifySearch(songString.trim());
+    }else{
+      songStringForYt = songString;
+    }
+    
+    const searchResults = await ytsr(songStringForYt, { limit: 5 });
     const { url } = searchResults.items[0];
     console.log({ url });
     const songInfo = await ytdl.getInfo(url);
