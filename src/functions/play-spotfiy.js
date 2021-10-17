@@ -1,6 +1,6 @@
 /* eslint-disable linebreak-style */
 /* eslint-disable no-unused-vars */
-const spotifyApi = require('../integrations/spotify');
+const { spotifyApi } = require('../integrations/spotify');
 
 const spotifySearch = async (searchString) => {
   const spotifyLink = 'https://open.spotify.com/';

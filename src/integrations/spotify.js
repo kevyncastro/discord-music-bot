@@ -7,16 +7,23 @@ const spotifyApi = new SpotifyWebApi({
   clientSecret: process.env.SPOTIFY_CLIENT_SECRET ? process.env.SPOTIFY_CLIENT_SECRET : '',
 });
 
-spotifyApi.clientCredentialsGrant().then((data) => {
-  console.log(data)
-  console.log('The access token expires in ' + data.body['expires_in']);
-  console.log('The access token is ' + data.body['access_token']);
+const getSpotifyAccessToken = async () => {
+  try{
+    const data = await spotifyApi.clientCredentialsGrant();
+    console.log('The access token expires in ' + data.body['expires_in']);
+    console.log('The access token is ' + data.body['access_token']);
+    spotifyApi.setAccessToken(data.body['access_token']);
 
-    // Save the access token so that it's used in future calls
-  spotifyApi.setAccessToken(data.body['access_token']);
-})
-.catch(e => {
-  console.log('Something went wrong when retrieving an access token', e)
-})
+    setTimeout(getSpotifyAccessToken, data.body['expires_in'] * 1000);
+    return data;
+  }
+  catch(e){
+    console.log('Something went wrong when retrieving an access token', e);
+    throw e;
+  }
+}
 
-module.exports = spotifyApi;
+getSpotifyAccessToken();
+
+module.exports = { spotifyApi, getSpotifyAccessToken };
+
