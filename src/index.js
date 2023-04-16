@@ -7,12 +7,13 @@ const {
   Player
 } = require('discord-music-player');
 const ytdl = require('ytdl-core');
-const { join } = require('@discordjs/voice');
+const { joinVoiceChannel  } = require('@discordjs/voice');
 const youtubesearchapi = require('youtube-search-api');
 const ytsr = require('ytsr');
 const search = require('youtube-search');
 const spotifySearch = require('./functions/play-spotfiy');
-const musixMatch = require('./integrations/musixmatch');
+const { VC, TC } = require('./constants/constants');
+const { log } = require('console');
 
 const client = new Discord.Client({
   // eslint-disable-next-line no-undef
@@ -38,18 +39,18 @@ function play(guild, song) {
     queue.delete(guild.id);
   }
   const dispatcher = serverQueue.connection
-    .play(ytdl(song.url))
-    .on('finish', () => {
-      serverQueue.songs.shift()
-      const newQueue = { ...serverQueue };
-      queue.set(guild.id, newQueue);
-      if(queue.get(guild.id).songs.length) {
-        play(guild, queue.get(guild.id).songs[0]);
-      }
-    })
+    .dispatchAudio()
+    // .on('finish', () => {
+    //   serverQueue.songs.shift()
+    //   const newQueue = { ...serverQueue };
+    //   queue.set(guild.id, newQueue);
+    //   if(queue.get(guild.id).songs.length) {
+    //     play(guild, queue.get(guild.id).songs[0]);
+    //   }
+    // })
     // eslint-disable-next-line no-console
-    .on('error', (error) => console.error(error));
-  dispatcher.setVolumeLogarithmic(serverQueue.volume / 5);
+    // .on('error', (error) => console.error(error));
+  // dispatcher.setVolumeLogarithmic(serverQueue.volume / 5);
   serverQueue.textChannel.send(`Start playing: **${song.title}**`);
 }
 
@@ -70,11 +71,11 @@ client.on('message', async (message) => {
   const voiceChannel = message.member.voice.channel;
   const args = message.content.split(' ');
   const prefix = args[0].split('')
-  if (!message.member.voice.channel && message.author.id !== '881137071278940191' && prefix[0] === settings.prefix) { 
-    return message.channel.send(
-      "You have to be in a voice channel to stop the music!"
-    );
-  }
+  // if (!message.member.voice.channel && message.author.id !== '881137071278940191' && prefix[0] === settings.prefix) { 
+  //   return message.channel.send(
+  //     "You have to be in a voice channel to stop the music!"
+  //   );
+  // }
   const songString = args.filter((str) => str !== '.play').join(' ');
   queue.set(message.guild.id, queue.get(message.guild.id) ?? {
     textChannel: message.channel,
@@ -88,6 +89,7 @@ client.on('message', async (message) => {
     console.log(songString);
     var songStringForYt = '';
     if(songString.startsWith('https://open.spotify.com/')){
+      log(songString)
       songStringForYt = await spotifySearch(songString.trim());
     }else{
       songStringForYt = songString;
@@ -101,14 +103,19 @@ client.on('message', async (message) => {
       title: songInfo.videoDetails.title,
       url: songInfo.videoDetails.video_url,
     };
-    const queueContruct = { ...queue.get(message.guild.id) }
+    const queueConstruct = { ...queue.get(message.guild.id) }
     if (queue.get(message.guild.id) && !queue.get(message.guild.id).songs.length) {
-      queueContruct.songs.push(song);
-      const connection = await voiceChannel.join();
-      queueContruct.connection = connection;
+      queueConstruct.songs.push(song);
+
+
+      queueConstruct.connection = joinVoiceChannel({
+        channelId: message.member.voice.channel.id,
+        guildId: message.guild.id,
+        adapterCreator: message.guild.voiceAdapterCreator
+      });
       // Calling the play function to start a song
-      queue.set(message.guild.id, queueContruct);
-      play(message.guild, queueContruct.songs[0]);
+      queue.set(message.guild.id, queueConstruct);
+      play(message.guild, queueConstruct.songs[0]);
     } else if (queue.get(message.guild.id) && queue.get(message.guild.id).songs.length) {
       const newQueue = { ...queue.get(message.guild.id) };
       newQueue.songs.push(song);
@@ -136,5 +143,23 @@ client.on('message', async (message) => {
       return message.channel.send(`No songs in queue`)
     }
     return message.channel.send(await musixMatch(queue.get(message.guild.id).songs[0].title));
+  }
+  if (args[0] === `${settings.prefix}makechannel`) {
+    if (message.member.voice.channelId === VC.CREATE_VC && message.channel.id === TC.ASSISTANT) {
+      const manage = new Discord.GuildChannelManager(message.guild)
+      const member = new Discord.GuildMember(client, message.author, message.guild)
+      const category = await manage.create('TEMPORARY', {
+        type: 'GUILD_CATEGORY'
+      })
+      let newChannel
+      await manage.create('new-general', { parent: category.id, reason: 'Needed a cool new channel', type: 'GUILD_VOICE', userLimit: args[1] }).then((channel) => {
+        newChannel = channel
+        message.channel.send(`Your Temporary Channel Has Been Created!`);
+      })
+      log(newChannel)
+      message.member.voice.setChannel(newChannel.id)
+    } else {
+      message.channel.send(`Join "CREATE VC" Voice Channel and Enter Command on "98-assistant" Text Channel`);
+    } 
   }
 });
